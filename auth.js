@@ -12,7 +12,6 @@ const blackList = require("./blacklistToken");
 
 const complexityOptions = {
     min: 6,
-    max: 18,
     numeric: 1,
     lowerCase: 0,
     upperCase: 0,
