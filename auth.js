@@ -1,5 +1,4 @@
 const auth = require("./middleware/auth");
-// const _ = require("lodash");
 const bcrypt = require("bcrypt");
 const express = require("express");
 const router = express.Router();
@@ -12,6 +11,7 @@ const blackList = require("./blacklistToken");
 
 const complexityOptions = {
     min: 6,
+    max: 256,
     numeric: 1,
     lowerCase: 0,
     upperCase: 0,
