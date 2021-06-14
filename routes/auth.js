@@ -65,7 +65,7 @@ router.post("/logout", async (req, res) => {
     res.status(200).send();
 });
 
-router.get("/login_status", (req, res) => {
+router.get("/login-status", (req, res) => {
     const token = req.cookies.token;
     if (!token) return res.status(200).send({ logged_in: false });
     if (blackList.tokenExists(token)) return res.status(200).send({ logged_in: false });

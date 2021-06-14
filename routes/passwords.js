@@ -9,7 +9,7 @@ const admin = require("firebase-admin");
 const { encrypt, decrypt, getRandomKey } = require("../utils/encryption");
 const passwordsDb = db.collection("passwords");
 
-router.post("/create", auth, async (req, res) => {
+router.post("/", auth, async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -60,7 +60,7 @@ router.get("/", auth, async (req, res) => {
     res.status(200).send(accounts);
 });
 
-router.put("/update/:id", auth, async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -88,7 +88,7 @@ router.put("/update/:id", auth, async (req, res) => {
     res.status(200).send();
 });
 
-router.delete("/delete/:id", auth, async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
     // const { error } = validateDelete(req.body);
     // if (error) return res.status(400).send(error.details[0].message);
     const passwordsRef = passwordsDb.doc(req.user.email).collection("passwords");
