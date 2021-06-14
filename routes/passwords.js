@@ -1,12 +1,12 @@
-const auth = require("./middleware/auth");
+const auth = require("../middleware/auth");
 const config = require("config");
 const express = require("express");
 const router = express.Router();
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
-const db = require("./init_db");
+const db = require("../model/initDB");
 const admin = require("firebase-admin");
-const { encrypt, decrypt, getRandomKey } = require("./encryption");
+const { encrypt, decrypt, getRandomKey } = require("../utils/encryption");
 const passwordsDb = db.collection("passwords");
 
 router.post("/create", auth, async (req, res) => {

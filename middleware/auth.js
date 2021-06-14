@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const blackList = require("../blacklistToken");
+const blackList = require("../utils/blacklistToken");
 
 function auth(req, res, next) {
     const token = req.cookies.token;

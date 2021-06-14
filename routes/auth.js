@@ -1,13 +1,13 @@
-const auth = require("./middleware/auth");
-const bcrypt = require("bcrypt");
 const express = require("express");
-const router = express.Router();
+const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const passwordComplexity = require("joi-password-complexity");
 const jwt = require("jsonwebtoken");
-const db = require("./init_db");
+const db = require("../model/initDB");
 const admin = require("firebase-admin");
-const blackList = require("./blacklistToken");
+const blackList = require("../utils/blacklistToken");
+
+const router = express.Router();
 
 const complexityOptions = {
     min: 6,
