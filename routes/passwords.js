@@ -1,19 +1,16 @@
-const auth = require("../middleware/auth");
 const config = require("config");
 const express = require("express");
 const router = express.Router();
 const Joi = require("joi");
-const jwt = require("jsonwebtoken");
-const db = require("../model/initDB");
-const admin = require("firebase-admin");
-const { encrypt, decrypt, getRandomKey } = require("../utils/encryption");
-const passwordsDb = db.collection("passwords");
+const Password = require("../model/user");
+const auth = require("../middleware/auth");
+const { encrypt, decrypt } = require("../utils/encryption");
 
 router.post("/", auth, async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    const userPasswordsDb = passwordsDb.doc(req.user.email).collection("passwords");
+    const userPasswordsDb = Password.doc(req.user.email).collection("passwords");
     const accountsQuery = userPasswordsDb.where("accountName", "==", req.body.accountName);
 
     accounts = await accountsQuery.get();
@@ -37,7 +34,7 @@ router.post("/", auth, async (req, res) => {
 });
 
 router.get("/", auth, async (req, res) => {
-    const userPasswordsDb = passwordsDb.doc(req.user.email).collection("passwords");
+    const userPasswordsDb = Password.doc(req.user.email).collection("passwords");
     let accounts = await userPasswordsDb.get();
 
     let keyBuffer = Buffer.from(process.env.encryptKey, "utf-8");
@@ -65,7 +62,7 @@ router.put("/:id", auth, async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message);
 
     const id = req.params.id;
-    const userPasswordsDb = passwordsDb.doc(req.user.email).collection("passwords");
+    const userPasswordsDb = Password.doc(req.user.email).collection("passwords");
     const accountRef = userPasswordsDb.doc(id);
     let account = await accountRef.get();
 
@@ -89,9 +86,7 @@ router.put("/:id", auth, async (req, res) => {
 });
 
 router.delete("/:id", auth, async (req, res) => {
-    // const { error } = validateDelete(req.body);
-    // if (error) return res.status(400).send(error.details[0].message);
-    const passwordsRef = passwordsDb.doc(req.user.email).collection("passwords");
+    const passwordsRef = Password.doc(req.user.email).collection("passwords");
     const accountRef = passwordsRef.doc(req.params.id);
     let account = await accountRef.get();
 
