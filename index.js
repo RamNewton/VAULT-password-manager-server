@@ -3,8 +3,11 @@ var cookieParser = require("cookie-parser");
 const cors = require("cors");
 const authRouter = require("./routes/auth.js");
 const dashboardRouter = require("./routes/passwords.js");
+const morgan = require("morgan");
 
 const app = express();
+
+app.use(morgan("dev"));
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(cookieParser());
