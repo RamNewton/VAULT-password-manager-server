@@ -2,6 +2,7 @@ const Joi = require("joi");
 const Password = require("../model/user");
 const { encrypt, decrypt } = require("../utils/encryption");
 const asyncHandler = require("../middleware/asyncHandler");
+const ErrorResponse = require("../utils/ErrorResponse");
 
 const validate = (data) => {
     const schema = Joi.object({
@@ -15,13 +16,15 @@ const validate = (data) => {
 
 exports.createResource = asyncHandler(async (req, res, next) => {
     const { error } = validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+    // if (error) return res.status(400).send(error.details[0].message);
+    if (error) return next(new ErrorResponse(error.details[0].message, 400));
 
     const userPasswordsDb = Password.doc(req.user.email).collection("passwords");
     const accountsQuery = userPasswordsDb.where("accountName", "==", req.body.accountName);
 
     accounts = await accountsQuery.get();
-    if (accounts.docs.length > 0) return res.status(400).send("An entry with this account name is already present.");
+    // if (accounts.docs.length > 0) return res.status(400).send("An entry with this account name is already present.");
+    if (accounts.docs.length > 0) return next(new ErrorResponse("An entry with this account name is already present", 400));
 
     let passwordBuffer = Buffer.from(req.body.password, "utf-8");
     let keyBuffer = Buffer.from(process.env.encryptKey, "utf-8");
@@ -58,7 +61,7 @@ exports.getStore = asyncHandler(async (req, res, next) => {
             accounts = [];
         }
     } catch (err) {
-        console.log(err);
+        return next(new ErrorReponse(err.message, 500));
     }
 
     res.status(200).send(accounts);
@@ -66,14 +69,16 @@ exports.getStore = asyncHandler(async (req, res, next) => {
 
 exports.updateResource = asyncHandler(async (req, res, next) => {
     const { error } = validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+    // if (error) return res.status(400).send(error.details[0].message);
+    if (error) return next(new ErrorResponse(error.details[0].message, 400));
 
     const id = req.params.id;
     const userPasswordsDb = Password.doc(req.user.email).collection("passwords");
     const accountRef = userPasswordsDb.doc(id);
     let account = await accountRef.get();
 
-    if (!account.exists) res.status(400).send("Entry for this account does not exist.");
+    // if (!account.exists) res.status(400).send("Entry for this account does not exist.");
+    if (!account.exists) return next(new ErrorResponse("Entry for this account does not exist.", 400));
 
     let passwordBuffer = Buffer.from(req.body.password, "utf-8");
     let keyBuffer = Buffer.from(process.env.encryptKey, "utf-8");
@@ -97,8 +102,9 @@ exports.deleteResource = asyncHandler(async (req, res, next) => {
     const accountRef = passwordsRef.doc(req.params.id);
     let account = await accountRef.get();
 
-    if (!account.exists) res.status(400).send("Entry for this account does not exist.");
-
+    // if (!account.exists) res.status(400).send("Entry for this account does not exist.");
+    if (!account.exists) return next(new ErrorResponse("Entry for this account does not exist.", 400));
     await accountRef.delete();
+
     res.status(200).send();
 });
