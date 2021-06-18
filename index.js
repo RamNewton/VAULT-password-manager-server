@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const authRouter = require("./routes/auth.js");
 const dashboardRouter = require("./routes/passwords.js");
 const errorHandler = require("./middleware/error");
+const path = require('path');
 const app = express();
 
 app.use(morgan("dev"));
