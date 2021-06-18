@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const blackList = require("../utils/blacklistToken");
 const User = require("../model/user");
 const asyncHandler = require("../middleware/asyncHandler");
+const ErrorResponse = require("../utils/ErrorResponse");
 
 exports.register = asyncHandler(async (req, res, next) => {
     const validate = (data) => {
@@ -31,11 +32,13 @@ exports.register = asyncHandler(async (req, res, next) => {
     };
 
     const { error } = validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+    // if (error) return res.status(400).send(error.details[0].message);
+    if (error) return next(new ErrorResponse(error.details[0].message, 400));
 
     let _user = User.where("email", "==", req.body.email);
     user = await _user.get();
-    if (user.docs.length > 0) return res.status(400).send("This email id has already been registered");
+    // if (user.docs.length > 0) return res.status(400).send("This email id has already been registered");
+    if (user.docs.length > 0) return next(new ErrorResponse("This email id has already been registered", 400));
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -60,15 +63,18 @@ exports.login = asyncHandler(async (req, res, next) => {
     };
 
     const { error } = validate(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+    // if (error) return res.status(400).send(error.details[0].message);
+    if (error) return next(new ErrorResponse(error.details[0].message, 400));
 
     let _user = User.where("email", "==", req.body.email);
     user = await _user.get();
-    if (user.docs.length == 0) return res.status(401).send("Invalid Email or Password");
+    // if (user.docs.length == 0) return res.status(401).send("Invalid Email or Password");
+    if (user.docs.length == 0) return next(new ErrorResponse("Invalid Email or Password", 401));
     user = user.docs[0];
 
     const validPassword = await bcrypt.compare(req.body.password, user.data().password);
-    if (!validPassword) return res.status(401).send("Invalid Email or Password");
+    // if (!validPassword) return res.status(401).send("Invalid Email or Password");
+    if (!validPassword) return next(new ErrorResponse("Invalid Email or Password", 401));
 
     const token = generateAuthToken(user);
 
