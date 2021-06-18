@@ -1,6 +1,7 @@
 const Joi = require("joi");
 const Password = require("../model/user");
 const { encrypt, decrypt } = require("../utils/encryption");
+const asyncHandler = require("../middleware/asyncHandler");
 
 const validate = (data) => {
     const schema = Joi.object({
@@ -12,7 +13,7 @@ const validate = (data) => {
     return schema.validate(data);
 };
 
-exports.createResource = async (req, res) => {
+exports.createResource = asyncHandler(async (req, res, next) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -37,9 +38,9 @@ exports.createResource = async (req, res) => {
     keyBuffer = null;
 
     res.status(200).send();
-};
+});
 
-exports.getStore = async (req, res) => {
+exports.getStore = asyncHandler(async (req, res, next) => {
     const userPasswordsDb = Password.doc(req.user.email).collection("passwords");
     let accounts = await userPasswordsDb.get();
 
@@ -61,9 +62,9 @@ exports.getStore = async (req, res) => {
     }
 
     res.status(200).send(accounts);
-};
+});
 
-exports.updateResource = async (req, res) => {
+exports.updateResource = asyncHandler(async (req, res, next) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -89,9 +90,9 @@ exports.updateResource = async (req, res) => {
     keyBuffer = null;
 
     res.status(200).send();
-};
+});
 
-exports.deleteResource = async (req, res) => {
+exports.deleteResource = asyncHandler(async (req, res, next) => {
     const passwordsRef = Password.doc(req.user.email).collection("passwords");
     const accountRef = passwordsRef.doc(req.params.id);
     let account = await accountRef.get();
@@ -100,4 +101,4 @@ exports.deleteResource = async (req, res) => {
 
     await accountRef.delete();
     res.status(200).send();
-};
+});

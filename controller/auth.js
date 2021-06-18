@@ -4,8 +4,9 @@ const passwordComplexity = require("joi-password-complexity");
 const jwt = require("jsonwebtoken");
 const blackList = require("../utils/blacklistToken");
 const User = require("../model/user");
+const asyncHandler = require("../middleware/asyncHandler");
 
-exports.register = async (req, res) => {
+exports.register = asyncHandler(async (req, res, next) => {
     const validate = (data) => {
         const complexityOptions = {
             min: 6,
@@ -46,9 +47,9 @@ exports.register = async (req, res) => {
     });
 
     res.status(200).send();
-};
+});
 
-exports.login = async (req, res) => {
+exports.login = asyncHandler(async (req, res, next) => {
     const validate = (data) => {
         const schema = Joi.object({
             email: Joi.string().email().required().min(3).max(255),
@@ -74,15 +75,15 @@ exports.login = async (req, res) => {
     res.status(200)
         .cookie("token", token, { sameSite: "strict", path: "/", expires: new Date(new Date().getTime() + 1800 * 1000), httpOnly: true })
         .send();
-};
+});
 
-exports.logout = async (req, res) => {
+exports.logout = asyncHandler(async (req, res, next) => {
     const token = req.cookies.token;
     if (token) blackList.addToken(token);
     res.status(200).send();
-};
+});
 
-exports.loginStatus = (req, res) => {
+exports.loginStatus = asyncHandler(async (req, res, next) => {
     const token = req.cookies.token;
     if (!token) return res.status(200).send({ logged_in: false });
     if (blackList.tokenExists(token)) return res.status(200).send({ logged_in: false });
@@ -94,7 +95,7 @@ exports.loginStatus = (req, res) => {
     } catch {
         return res.status(200).send({ logged_in: false });
     }
-};
+});
 
 function generateAuthToken(user) {
     return jwt.sign({ email: user.data().email, _id: user.id }, process.env.jwtPrivateKey, { expiresIn: "0.5h" });
