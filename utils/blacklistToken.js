@@ -25,6 +25,6 @@ class BlackList {
 
 blackList = new BlackList();
 
-setInterval(blackList.purgeTokens, 3600 * 1000);
+setInterval(blackList.purgeTokens, 2 * process.env.TOKEN_EXPIRE_TIME * 1000);
 
 module.exports = blackList;

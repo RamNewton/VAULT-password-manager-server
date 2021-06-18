@@ -79,7 +79,7 @@ exports.login = asyncHandler(async (req, res, next) => {
     const token = generateAuthToken(user);
 
     res.status(200)
-        .cookie("token", token, { sameSite: "strict", path: "/", expires: new Date(new Date().getTime() + 1800 * 1000), httpOnly: true })
+        .cookie("token", token, { sameSite: "strict", path: "/", expires: new Date(new Date().getTime() + process.env.TOKEN_EXPIRE_TIME * 1000), httpOnly: true })
         .send();
 });
 
@@ -104,5 +104,5 @@ exports.loginStatus = asyncHandler(async (req, res, next) => {
 });
 
 function generateAuthToken(user) {
-    return jwt.sign({ email: user.data().email, _id: user.id }, process.env.jwtPrivateKey, { expiresIn: "0.5h" });
+    return jwt.sign({ email: user.data().email, _id: user.id }, process.env.jwtPrivateKey, { expiresIn: process.env.TOKEN_EXPIRE_TIME });
 }
